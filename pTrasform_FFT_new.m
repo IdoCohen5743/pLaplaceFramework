@@ -36,7 +36,7 @@ uini = u;
 
 
 
-p = 1.3;
+p = 1.1;
 Delta_pu = lapi(u,p);
 Jini = -Delta_pu(:)'*u(:);
 J = Jini;
@@ -46,13 +46,12 @@ ut = lapi(u,p);
 % for p=1.3 dt = 1e-4 and N=20 Gute Gute
 dt = 1e-4;
 
-N = 20;
-numOitr = 120000;
+numOitr = 1200000;
 uT = zeros([size(u),numOitr]);
 tic
 hwait = waitbar(0,'message');
 for iii=1:1:numOitr
-    if(mod(iii,1e3)==0)
+    if(mod(iii,1e4)==0)
         figure(26)
         subplot(1,2,1);imagesc(u);colorbar;
         subplot(1,2,2);imagesc(ut);colorbar;
@@ -60,19 +59,23 @@ for iii=1:1:numOitr
         waitbar(iii/(numOitr),hwait,num2str(100*iii/(numOitr)));
     end
     uT(:,:,iii) = u;
-    utemp = zeros(size(u));
-    for jjj=1:1:N
-        ut = lapi(u,p);
-        u = u + ut*dt;
-        utemp = utemp+u;
-    end
-    utemp = utemp/N;
-    u = utemp;
+    ut = lapi(u,p);
+    u = u + ut*dt;
     
 end
 close(hwait);
 toc
+%% mean
+N = 8;
+tic
+% uTT = zeros([size(u),numOitr/N]);
+for jjj=1:1:numOitr/N
+   uT(:,:,jjj) = mean(uT(:,:,[(jjj-1)*N+1:1:jjj*N]),3);
+end
+uT = uT(:,:,[1:1:numOitr/N]);
+toc
 %%
+
 dt = dt*N;
 [~,~,numOitr] = size(uT);
 T = dt*[0:1:numOitr-1];
@@ -109,7 +112,13 @@ d = d.^(alpha+1);
 for iii=1:1:numOitr
     FuT(:,:,iii) = FuT(:,:,iii).*d(iii);
 end
-FuT = real(ifft((FuT),[],3));
+
+for iii=1:1:row
+    for jjj=1:1:col
+        FuT(iii,jjj,:) = real(ifft(FuT(iii,jjj,:)));
+    end
+end
+% FuT = real(ifft((FuT),[],3));
 
 
 FuT = FuT(:,:,1:1:floor(numOitr/2));
@@ -145,8 +154,8 @@ grid on;
 h.Children.FontSize = 60;
 h.Children.TickLabelInterpreter = 'Latex';
 h.Children.YLim = [0,1.05*max(spec1)];
-h.Children.XLim = [T(1) floor(T(end)+1)];
-h.Children.XTick = [0:ceil(T(end)/5):T(end)+1];
+h.Children.XLim = [T(1) 6.5];
+h.Children.XTick = [0:ceil(6.5/5):6.5];
 
 %%
 for iii=1:1:numOitr
@@ -161,10 +170,17 @@ h.Children.FontSize = 60;
 h.Children.TickLabelInterpreter = 'Latex';
 h.Children.YLim = [0,1.05*max(spec1)];
 % h.Children.XLim = [T(1) floor(T(end)+1)];
-h.Children.XLim = [T(1) 48];
+h.Children.XLim = [T(1) 6.5];
 % h.Children.XTick = [0:ceil(T(end)/5):T(end)+1];
-h.Children.XTick = [0:ceil(48/5):48];
+h.Children.XTick = [0:ceil(6.5/5):6.5];
 
+ax_s=gca; outerpos = ax_s.OuterPosition;
+ti = ax_s.TightInset;
+left = outerpos(1) + ti(1);
+bottom = outerpos(2) + ti(2);
+ax_width = outerpos(3) - ti(1) - ti(3);
+ax_height = outerpos(4) - ti(2) - ti(4);
+ax_s.Position = [left bottom ax_width ax_height];
 
 %% Reconstruction
 
@@ -188,7 +204,7 @@ h.InnerPosition(3)=col;
 drawnow;
 %     h.InnerPosition(4)=col;
 ha = gca;
-h.InnerPosition(4)=floor(h.InnerPosition(3)*90/64);
+h.InnerPosition(4)=floor(h.InnerPosition(3)*row/col);
 set(ha,'position',[0 0 1 1]); %[left bottom width height]
 %     set(ha,'OuterPosition',[0 0 1 1]); %[left bottom width height]
 %     set(ha,'Units','pixels');
@@ -197,8 +213,8 @@ h = gcf;
 set(h,'color','w');
 
 %% filtering
-tPoints = [1.8860/5    3.5569/5    6.7082/5   12.6515/5   23.8604/5   45.0000];
-for kkk=1:1:6
+tPoints = [0.15 0.5 0.75 6.5];
+for kkk=1:1:length(tPoints)
     fsh = zeros(size(u));
     if kkk==1
         firstInd = 1;
@@ -212,6 +228,7 @@ for kkk=1:1:6
     for iii=firstInd:1:lastInd
         fsh = fsh + phi(:,:,iii)*dt;
     end
+    
     fsh = -real(fsh);%+imag(fsh);
     [row,col] = size(fsh);
     h=figure();imshow(fsh,[])
@@ -232,15 +249,15 @@ for kkk=1:1:6
 end
 
 %%
-figure();imshow(fsh,[])
-ax_s=gca; outerpos = ax_s.OuterPosition;
-ti = ax_s.TightInset;
-left = outerpos(1) + ti(1);
-bottom = outerpos(2) + ti(2);
-ax_width = outerpos(3) - ti(1) - ti(3);
-ax_height = outerpos(4) - ti(2) - ti(4);
-ax_s.Position = [left bottom ax_width ax_height];
-
+% figure();imshow(fsh,[])
+% ax_s=gca; outerpos = ax_s.OuterPosition;
+% ti = ax_s.TightInset;
+% left = outerpos(1) + ti(1);
+% bottom = outerpos(2) + ti(2);
+% ax_width = outerpos(3) - ti(1) - ti(3);
+% ax_height = outerpos(4) - ti(2) - ti(4);
+% ax_s.Position = [left bottom ax_width ax_height];
+% 
 
 
 

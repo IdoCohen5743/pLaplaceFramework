@@ -36,15 +36,14 @@ uini = u;
 
 
 
-p = 1.1;
+p = 1.01;
+dt = 5e-5;
 Delta_pu = lapi(u,p);
 Jini = -Delta_pu(:)'*u(:);
 J = Jini;
 h = figure();imagesc(u)
 
 ut = lapi(u,p);
-% for p=1.3 dt = 1e-4 and N=20 Gute Gute
-dt = 1e-4;
 
 numOitr = 1200000;
 uT = zeros([size(u),numOitr]);
@@ -162,18 +161,21 @@ for iii=1:1:numOitr
     tempPhi = phi(:,:,iii);
     spec1(iii) = abs(tempPhi(:)'*f(:));
 end
-
+%%
 h = figure('Name',['the spectrum der = ',num2str(alpha+1)]);plot(T,spec1);
 h.Children.Children(1).LineWidth = 8;
 grid on;
 h.Children.FontSize = 60;
 h.Children.TickLabelInterpreter = 'Latex';
 h.Children.YLim = [0,1.05*max(spec1)];
-% h.Children.XLim = [T(1) floor(T(end)+1)];
-h.Children.XLim = [T(1) 6.5];
-% h.Children.XTick = [0:ceil(T(end)/5):T(end)+1];
-h.Children.XTick = [0:ceil(6.5/5):6.5];
-
+h.Children.XLim = [T(1) 4.2];
+% h.Children.XLim = [T(1) 4.2];
+h.Children.XTick = [0:ceil(4.2/5):4.2];
+% h.Children.XTick = [0:ceil(4.2/5):4.2];
+pause(0.00001);
+frame_h = get(handle(gcf),'JavaFrame');
+set(frame_h,'Maximized',1);
+drawnow
 ax_s=gca; outerpos = ax_s.OuterPosition;
 ti = ax_s.TightInset;
 left = outerpos(1) + ti(1);
@@ -213,7 +215,8 @@ h = gcf;
 set(h,'color','w');
 
 %% filtering
-tPoints = [0.15 0.5 0.75 6.5];
+maxT = 4.2;
+tPoints = [0.015 0.075 0.2 1]*maxT;
 for kkk=1:1:length(tPoints)
     fsh = zeros(size(u));
     if kkk==1
@@ -231,6 +234,7 @@ for kkk=1:1:length(tPoints)
     
     fsh = -real(fsh);%+imag(fsh);
     [row,col] = size(fsh);
+    figure();imagesc(fsh);
     h=figure();imshow(fsh,[])
     h.InnerPosition(3)=col;
     drawnow;

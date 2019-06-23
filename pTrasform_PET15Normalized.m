@@ -2,21 +2,12 @@ close all;
 clear all;
 clc;
 
-% load eigenFun20;
-% load eigenFun1_1_3;
-% load eigenVal1_1_3;
-load ../eigenFun2DNewmann_1_3;
-load ../eigenFun2DNewmann_1_5
-
 rng(41001);
-% noise = rand(size(eigenFun20));
-addpath '../pLaplace';
+addpath './pLaplace';
 
 f = imread('T0_brain3.bmp');
-f = imread('zebra_media_gmu.jpg');
-f = double(rgb2gray(f));
-f = imresize(f,0.16);
-% f = imresize(f,0.5);
+% f = double(rgb2gray(f));
+f = imresize(f,0.5);
 
 f = f - mean(f(:));
 f = double(f)/double(max(f(:)));
@@ -36,8 +27,8 @@ uini = u;
 
 
 
-p = 1.01;
-dt = 5e-5;
+p = 1.5;
+dt = 1e-4;
 Delta_pu = lapi(u,p);
 Jini = -Delta_pu(:)'*u(:);
 J = Jini;
@@ -45,7 +36,7 @@ h = figure();imagesc(u)
 
 ut = lapi(u,p);
 
-numOitr = 1200000;
+numOitr = 480000;
 uT = zeros([size(u),numOitr]);
 tic
 hwait = waitbar(0,'message');
@@ -59,13 +50,17 @@ for iii=1:1:numOitr
     end
     uT(:,:,iii) = u;
     ut = lapi(u,p);
-    u = u + ut*dt;
+    [ux,uy] = grad(u);
+    temp = ux+1i*uy;
+    pnorm = norm(temp(:),p)^(p-1);
+%     ut = 
+    u = u + ut*dt/pnorm;
     
 end
 close(hwait);
 toc
 %% mean
-N = 8;
+N = 20;
 tic
 % uTT = zeros([size(u),numOitr/N]);
 for jjj=1:1:numOitr/N
@@ -215,7 +210,7 @@ h = gcf;
 set(h,'color','w');
 
 %% filtering
-maxT = 4.2;
+maxT = T(end);
 tPoints = [0.015 0.075 0.2 1]*maxT;
 for kkk=1:1:length(tPoints)
     fsh = zeros(size(u));
@@ -249,21 +244,35 @@ for kkk=1:1:length(tPoints)
     set(h,'color','w');
     %     pos_fig=get(h,'OuterPosition');
     %     set(h,'OuterPosition',[pos_fig(1:2) pos(3:4)]);
-    
+    figure(86);plot(T(firstInd:1:lastInd-1),spec1(firstInd:1:lastInd-1));hold on;
 end
 
-%%
-% figure();imshow(fsh,[])
-% ax_s=gca; outerpos = ax_s.OuterPosition;
-% ti = ax_s.TightInset;
-% left = outerpos(1) + ti(1);
-% bottom = outerpos(2) + ti(2);
-% ax_width = outerpos(3) - ti(1) - ti(3);
-% ax_height = outerpos(4) - ti(2) - ti(4);
-% ax_s.Position = [left bottom ax_width ax_height];
-% 
-
-
-
+h=figure(86);hold off;
+for iii=1:1:length(h.Children.Children)
+    h.Children.Children(iii).LineWidth = 8;
+end
+grid on;
+h.Children.FontSize = 70;
+h.Children.TickLabelInterpreter = 'Latex';
+% h.Children.YLim = [0,1.05*max(spec1)];
+h.Children.YLim = [0,10*max(spec1)];
+h.Children.YScale = 'log';
+h.Children.XLim = [T(1) maxT+0.01];
+h.Children.XTick = [0:ceil((maxT+0.1)/5):maxT+0.1];
+h.Children.YTick = 10.^[floor(-log(max(spec1))-1):ceil((log(max(spec1)))/7):log(max(spec1))+1];
+% h.Children.XTick = [0:ceil(4.2/5):4.2];
+pause(0.00001);
+frame_h = get(handle(gcf),'JavaFrame');
+set(frame_h,'Maximized',1);
+drawnow
+ax_s=gca; outerpos = ax_s.OuterPosition;
+ti = ax_s.TightInset;
+left = outerpos(1) + ti(1);
+bottom = outerpos(2) + ti(2);
+ax_width = outerpos(3) - ti(1) - ti(3);
+ax_height = outerpos(4) - ti(2) - ti(4);
+ax_s.Position = [left bottom ax_width ax_height];
+h = legend(['$0\%-1.5\%$'],['$1.5\%-7.5\%$'],['$7.5\%-20\%$'],['$20\%-100\%$']);
+h.Interpreter = 'Latex';
 
 

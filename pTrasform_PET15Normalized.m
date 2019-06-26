@@ -28,7 +28,7 @@ uini = u;
 
 
 p = 1.5;
-dt = 1e-4;
+dt = 4e-5;
 Delta_pu = lapi(u,p);
 Jini = -Delta_pu(:)'*u(:);
 J = Jini;
@@ -36,7 +36,7 @@ h = figure();imagesc(u)
 
 ut = lapi(u,p);
 
-numOitr = 480000;
+numOitr = 1200000;
 uT = zeros([size(u),numOitr]);
 tic
 hwait = waitbar(0,'message');
@@ -60,7 +60,7 @@ end
 close(hwait);
 toc
 %% mean
-N = 20;
+N = 8;
 tic
 % uTT = zeros([size(u),numOitr/N]);
 for jjj=1:1:numOitr/N
@@ -78,8 +78,8 @@ T = dt*[0:1:numOitr-1];
 %% initial data
 
 uini = uT(:,:,1);
-
-alpha = 1/(2-p);
+% alpha = 1/(2-p);
+alpha = 1;
 
 spec0 = squeeze(sum(sum(abs(uT))));
 h= figure('Name',['der = ',num2str(0)]);plot(T,spec0);
@@ -148,8 +148,8 @@ grid on;
 h.Children.FontSize = 60;
 h.Children.TickLabelInterpreter = 'Latex';
 h.Children.YLim = [0,1.05*max(spec1)];
-h.Children.XLim = [T(1) 6.5];
-h.Children.XTick = [0:ceil(6.5/5):6.5];
+h.Children.XLim = [T(1) T(end)];
+h.Children.XTick = [0:ceil(T(end)/5):T(end)];
 
 %%
 for iii=1:1:numOitr
@@ -210,7 +210,8 @@ h = gcf;
 set(h,'color','w');
 
 %% filtering
-maxT = T(end);
+% maxT = T(end);
+maxT = 45.25;
 tPoints = [0.015 0.075 0.2 1]*maxT;
 for kkk=1:1:length(tPoints)
     fsh = zeros(size(u));

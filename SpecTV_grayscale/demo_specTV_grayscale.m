@@ -10,30 +10,31 @@ clc;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Max_time = 4.2;       % Maximal scale to be processed (in evolution time)
 %Max_time = 40;     % large scale
-Num_of_bands = 21000;  % Number of bands phi(x,t);
+Num_of_bands = 30000;  % Number of bands phi(x,t);
 %%
 
 dt = Max_time/Num_of_bands; 
 
 f = double(rgb2gray(imread('zebra_media_gmu.jpg'))); 
 %f = f(50:100,50:100); % debug
-f = double(f);
+% f = double(f);
 % f = double(rgb2gray(f));
 f = imresize(f,0.16);
 % f = f(21:185,71:240);  % fruits, melon
-
-f = f/255;  % pixels are in the range [0,1]
-f = f- mean(f(:));
+f = f - mean(f(:));
+f = double(f)/double(max(f(:)));
+% f = f/255;  % pixels are in the range [0,1]
+% f = f- mean(f(:));
 figure(1); imshow(f,[]); title('f')
 
 % Compute Phi bands and residual f_r
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [S,T,Phi,f_r] = specTV_evolve(f, Max_time, dt);  % evolve image
-Sido = log10(S);
 % Define Filters
-hp_i = round(Num_of_bands*1.5/100);
-bp_low_i=Num_of_bands*7.5/100;
-bp_high_i = Num_of_bands*20/100;  % incices of low and high bandpass cutoff 
+factor = 1;
+hp_i = (Num_of_bands*1.5/100);
+bp_low_i=(Num_of_bands*7.5/100);
+bp_high_i = (Num_of_bands*20/100); 
 H1 = zeros(size(T));
 H1(1:hp_i)=1;  % high pass, melon
 H2 = zeros(size(T));
@@ -61,12 +62,12 @@ end
 grid on;
 h.Children.FontSize = 70;
 h.Children.TickLabelInterpreter = 'Latex';
-% h.Children.YLim = [0,1.05*max(S)];
-h.Children.YLim = [0,10*max(S)];
-h.Children.YScale = 'log';
-h.Children.XLim = [0 4.21];
-h.Children.XTick = [0:ceil((Max_time+0.1)/5):Max_time+0.1];
-h.Children.YTick = 10.^[floor(-log(max(S))-1):ceil((log(max(S)))/7):log(max(S))+1];
+h.Children.YLim = [0,1.1*max(S)];
+% h.Children.YLim = [0,1000*max(S)];
+% h.Children.YScale = 'log';
+h.Children.XLim = [0 T(end)];
+h.Children.XTick = [0:ceil((T(end)+0.1)/5):T(end)+0.1];
+% h.Children.YTick = 10.^[floor(-log(max(S))-1):ceil((log(max(S)))/7):log(max(S))+1];
 % h.Children.XTick = [0:ceil(4.2/5):4.2];
 pause(0.00001);
 frame_h = get(handle(gcf),'JavaFrame');
@@ -85,19 +86,60 @@ h.Interpreter = 'Latex';
 % legend('Spectrum S(t)','High Pass Filter H1(t)', 'Band Pass Filter H2(t)')
 % show a few Phi(t) instances
 %phi_show = [4 20 30 50];
-
-figure(); 
+%%
+h=figure(); 
 imshow(f_H1,[]);
-title('High Pass image f_{H1} x 2')
-figure(); 
+[row,col] = size(f_H1);
+h.InnerPosition(3)=col;
+    drawnow;
+    %     h.InnerPosition(4)=col;
+    ha = gca;
+    h.InnerPosition(4)=floor(h.InnerPosition(3)*row/col);
+    set(ha,'position',[0 0 1 1]); %[left bottom width height]
+    %     set(ha,'OuterPosition',[0 0 1 1]); %[left bottom width height]
+    %     set(ha,'Units','pixels');
+    %     pos=get(ha,'position');
+    h = gcf;
+    set(h,'color','w');
+h = figure(); 
 imshow(f_H2,[]);
-title('Band Pass image f_{H2}')
-figure(); 
+h.InnerPosition(3)=col;
+    drawnow;
+    %     h.InnerPosition(4)=col;
+    ha = gca;
+    h.InnerPosition(4)=floor(h.InnerPosition(3)*row/col);
+    set(ha,'position',[0 0 1 1]); %[left bottom width height]
+    %     set(ha,'OuterPosition',[0 0 1 1]); %[left bottom width height]
+    %     set(ha,'Units','pixels');
+    %     pos=get(ha,'position');
+    h = gcf;
+    set(h,'color','w');
+h= figure(); 
 imshow(f_H3,[]);
-title('High Pass image f_{H1} x 2')
-figure(); 
+h.InnerPosition(3)=col;
+    drawnow;
+    %     h.InnerPosition(4)=col;
+    ha = gca;
+    h.InnerPosition(4)=floor(h.InnerPosition(3)*row/col);
+    set(ha,'position',[0 0 1 1]); %[left bottom width height]
+    %     set(ha,'OuterPosition',[0 0 1 1]); %[left bottom width height]
+    %     set(ha,'Units','pixels');
+    %     pos=get(ha,'position');
+    h = gcf;
+    set(h,'color','w');
+h=figure(); 
 imshow(f_H4,[]);
-title('Band Pass image f_{H2}')
+h.InnerPosition(3)=col;
+    drawnow;
+    %     h.InnerPosition(4)=col;
+    ha = gca;
+    h.InnerPosition(4)=floor(h.InnerPosition(3)*row/col);
+    set(ha,'position',[0 0 1 1]); %[left bottom width height]
+    %     set(ha,'OuterPosition',[0 0 1 1]); %[left bottom width height]
+    %     set(ha,'Units','pixels');
+    %     pos=get(ha,'position');
+    h = gcf;
+    set(h,'color','w');
 % figure(6); 
 % imshow(f_r); title('Residual f_r (Low-pass)')
 

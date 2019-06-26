@@ -32,7 +32,7 @@ dt = 5e-5;
 Delta_pu = lapi(u,p);
 Jini = -Delta_pu(:)'*u(:);
 J = Jini;
-h = figure();imagesc(u)
+%h = figure();imagesc(u)
 
 ut = lapi(u,p);
 
@@ -42,10 +42,10 @@ tic
 hwait = waitbar(0,'message');
 for iii=1:1:numOitr
     if(mod(iii,1e4)==0)
-        figure(26)
-        subplot(1,2,1);imagesc(u);colorbar;
-        subplot(1,2,2);imagesc(ut);colorbar;
-        drawnow;
+    %    figure(26)
+    %    subplot(1,2,1);imagesc(u);colorbar;
+    %    subplot(1,2,2);imagesc(ut);colorbar;
+    %    drawnow;
         waitbar(iii/(numOitr),hwait,num2str(100*iii/(numOitr)));
     end
     uT(:,:,iii) = u;
@@ -77,15 +77,15 @@ uini = uT(:,:,1);
 
 alpha = 1/(2-p);
 
-spec0 = squeeze(sum(sum(abs(uT))));
-h= figure('Name',['der = ',num2str(0)]);plot(T,spec0);
-h.Children.Children(1).LineWidth = 8;
-grid on;
-h.Children.FontSize = 60;
-h.Children.TickLabelInterpreter = 'Latex';
-h.Children.YLim = [0,1.05*max(spec0)];
-h.Children.XLim = [T(1) floor(T(end)+1)];
-h.Children.XTick = [0:ceil(T(end)/5):T(end)+1];
+%spec0 = squeeze(sum(sum(abs(uT))));
+%h= figure('Name',['der = ',num2str(0)]);plot(T,spec0);
+%h.Children.Children(1).LineWidth = 8;
+%grid on;
+%h.Children.FontSize = 60;
+%h.Children.TickLabelInterpreter = 'Latex';
+%h.Children.YLim = [0,1.05*max(spec0)];
+%h.Children.XLim = [T(1) floor(T(end)+1)];
+%h.Children.XTick = [0:ceil(T(end)/5):T(end)+1];
 %% derivative
 tic
 % yyytemp = uT;
@@ -114,16 +114,16 @@ end
 FuT = FuT(:,:,1:1:floor(numOitr/2));
 [~,~,numOitr] = size(FuT);
 T = dt*[0:1:numOitr-1];
-spec1 = abs(squeeze((sum(sum(abs(FuT))))));
+%spec1 = abs(squeeze((sum(sum(abs(FuT))))));
 
-h = figure('Name',['der = ',num2str(alpha+1)]);plot(T,spec1);
-h.Children.Children(1).LineWidth = 8;
-grid on;
-h.Children.FontSize = 60;
-h.Children.TickLabelInterpreter = 'Latex';
-h.Children.YLim = [0,1.05*max(spec1)];
-h.Children.XLim = [T(1) floor(T(end)+1)];
-h.Children.XTick = [0:ceil(T(end)/5):T(end)+1];
+%h = figure('Name',['der = ',num2str(alpha+1)]);plot(T,spec1);
+%h.Children.Children(1).LineWidth = 8;
+%grid on;
+%h.Children.FontSize = 60;
+%h.Children.TickLabelInterpreter = 'Latex';
+%h.Children.YLim = [0,1.05*max(spec1)];
+%h.Children.XLim = [T(1) floor(T(end)+1)];
+%h.Children.XTick = [0:ceil(T(end)/5):T(end)+1];
 
 
 
@@ -138,14 +138,14 @@ for iii=1:1:numOitr
 end
 spec1 = abs(squeeze((sum(sum(abs(phi))))));
 
-h = figure('Name',['der = ',num2str(alpha+1)]);plot(T,spec1);
-h.Children.Children(1).LineWidth = 8;
-grid on;
-h.Children.FontSize = 60;
-h.Children.TickLabelInterpreter = 'Latex';
-h.Children.YLim = [0,1.05*max(spec1)];
-h.Children.XLim = [T(1) 6.5];
-h.Children.XTick = [0:ceil(6.5/5):6.5];
+%h = figure('Name',['der = ',num2str(alpha+1)]);plot(T,spec1);
+%h.Children.Children(1).LineWidth = 8;
+%grid on;
+%h.Children.FontSize = 60;
+%h.Children.TickLabelInterpreter = 'Latex';
+%h.Children.YLim = [0,1.05*max(spec1)];
+%h.Children.XLim = [T(1) 6.5];
+%h.Children.XTick = [0:ceil(6.5/5):6.5];
 
 %%
 for iii=1:1:numOitr
@@ -153,57 +153,57 @@ for iii=1:1:numOitr
     spec1(iii) = abs(tempPhi(:)'*f(:));
 end
 %%
-h = figure('Name',['the spectrum der = ',num2str(alpha+1)]);plot(T,spec1);
-h.Children.Children(1).LineWidth = 8;
-grid on;
-h.Children.FontSize = 60;
-h.Children.TickLabelInterpreter = 'Latex';
-h.Children.YLim = [0,1.05*max(spec1)];
-h.Children.XLim = [T(1) 4.2];
+%h = figure('Name',['the spectrum der = ',num2str(alpha+1)]);plot(T,spec1);
+%h.Children.Children(1).LineWidth = 8;
+%grid on;
+%h.Children.FontSize = 60;
+%h.Children.TickLabelInterpreter = 'Latex';
+%h.Children.YLim = [0,1.05*max(spec1)];
+%h.Children.XLim = [T(1) 4.2];
 % h.Children.XLim = [T(1) 4.2];
-h.Children.XTick = [0:ceil(4.2/5):4.2];
+%h.Children.XTick = [0:ceil(4.2/5):4.2];
 % h.Children.XTick = [0:ceil(4.2/5):4.2];
-pause(0.00001);
-frame_h = get(handle(gcf),'JavaFrame');
-set(frame_h,'Maximized',1);
-drawnow
-ax_s=gca; outerpos = ax_s.OuterPosition;
-ti = ax_s.TightInset;
-left = outerpos(1) + ti(1);
-bottom = outerpos(2) + ti(2);
-ax_width = outerpos(3) - ti(1) - ti(3);
-ax_height = outerpos(4) - ti(2) - ti(4);
-ax_s.Position = [left bottom ax_width ax_height];
+%pause(0.00001);
+%frame_h = get(handle(gcf),'JavaFrame');
+%set(frame_h,'Maximized',1);
+%drawnow
+%ax_s=gca; outerpos = ax_s.OuterPosition;
+%ti = ax_s.TightInset;
+%left = outerpos(1) + ti(1);
+%bottom = outerpos(2) + ti(2);
+%ax_width = outerpos(3) - ti(1) - ti(3);
+%ax_height = outerpos(4) - ti(2) - ti(4);
+%ax_s.Position = [left bottom ax_width ax_height];
 
 %% Reconstruction
 
-fsh = zeros(size(u));
-for iii=1:1:numOitr
-    fsh = fsh + phi(:,:,iii)*dt;
-end
-fsh = -real(fsh);%+imag(fsh);
+%fsh = zeros(size(u));
+%for iii=1:1:numOitr
+%    fsh = fsh + phi(:,:,iii)*dt;
+%end
+%fsh = -real(fsh);%+imag(fsh);
 
-h = figure('Name','residue');imagesc(uini - fsh);
-h.Children.XTick = [1028];
-h.Children.YTick = [1028];
-h = figure('Name','sh');imagesc(fsh);
-h.Children.XTick = [1028];
-h.Children.YTick = [1028];
-h= figure('Name','source');imagesc(uini);
-h.Children.XTick = [1028];
-h.Children.YTick = [1028];
-h=figure();imshow(fsh,[])
-h.InnerPosition(3)=col;
-drawnow;
+%h = figure('Name','residue');imagesc(uini - fsh);
+%h.Children.XTick = [1028];
+%h.Children.YTick = [1028];
+%h = figure('Name','sh');imagesc(fsh);
+%h.Children.XTick = [1028];
+%h.Children.YTick = [1028];
+%h= figure('Name','source');imagesc(uini);
+%h.Children.XTick = [1028];
+%h.Children.YTick = [1028];
+%h=figure();imshow(fsh,[])
+%h.InnerPosition(3)=col;
+%drawnow;
 %     h.InnerPosition(4)=col;
-ha = gca;
-h.InnerPosition(4)=floor(h.InnerPosition(3)*row/col);
-set(ha,'position',[0 0 1 1]); %[left bottom width height]
+%ha = gca;
+%h.InnerPosition(4)=floor(h.InnerPosition(3)*row/col);
+%set(ha,'position',[0 0 1 1]); %[left bottom width height]
 %     set(ha,'OuterPosition',[0 0 1 1]); %[left bottom width height]
 %     set(ha,'Units','pixels');
 %     pos=get(ha,'position');
-h = gcf;
-set(h,'color','w');
+%h = gcf;
+%set(h,'color','w');
 
 %% filtering
 maxT = 4.2;
@@ -225,7 +225,7 @@ for kkk=1:1:length(tPoints)
     
     fsh = -real(fsh);%+imag(fsh);
     [row,col] = size(fsh);
-    figure();imagesc(fsh);
+%     figure();imagesc(fsh);
     h=figure();imshow(fsh,[])
     h.InnerPosition(3)=col;
     drawnow;

@@ -8,7 +8,6 @@ addpath './pLaplace';
 f = imread('zebra_media_gmu.jpg');
 f = double(rgb2gray(f));
 f = imresize(f,0.16);
-
 f = f - mean(f(:));
 f = double(f)/double(max(f(:)));
 u = f;
@@ -36,16 +35,17 @@ J = Jini;
 
 ut = lapi(u,p);
 
-numOitr = 1200000;
+% numOitr = 1200000;
+numOitr = 400000;
 uT = zeros([size(u),numOitr]);
 tic
 hwait = waitbar(0,'message');
 for iii=1:1:numOitr
     if(mod(iii,1e4)==0)
-    %    figure(26)
-    %    subplot(1,2,1);imagesc(u);colorbar;
-    %    subplot(1,2,2);imagesc(ut);colorbar;
-    %    drawnow;
+       figure(26)
+       subplot(1,2,1);imagesc(u);colorbar;
+       subplot(1,2,2);imagesc(ut);colorbar;
+       drawnow;
         waitbar(iii/(numOitr),hwait,num2str(100*iii/(numOitr)));
     end
     uT(:,:,iii) = u;
@@ -56,17 +56,23 @@ end
 close(hwait);
 toc
 %% mean
-N = 8;
+N = 2;
 tic
 % uTT = zeros([size(u),numOitr/N]);
 for jjj=1:1:numOitr/N
    uT(:,:,jjj) = mean(uT(:,:,[(jjj-1)*N+1:1:jjj*N]),3);
 end
 uT = uT(:,:,[1:1:numOitr/N]);
+dt = dt*N;
+toc
+%% sample
+N = 20;
+tic
+uT = uT(:,:,1:N:end);
+dt = dt*N;
 toc
 %%
 
-dt = dt*N;
 [~,~,numOitr] = size(uT);
 T = dt*[0:1:numOitr-1];
 
@@ -136,7 +142,15 @@ phi = zeros(size(FuT));
 for iii=1:1:numOitr
     phi(:,:,iii) = -FuT(:,:,iii)*((T(iii)).^(alpha))/gamma(alpha+1);
 end
-spec1 = abs(squeeze((sum(sum(abs(phi))))));
+% N =100
+% phi = zeros(size(FuT));
+% [~,~,numOitr]= size(FuT);
+% % T = [0,T(1:end-1)];
+% for iii=1:1:numOitr
+%     phi(:,:,iii) = -FuT(:,:,iii)*((T(iii)).^(alpha))/gamma(alpha+1);
+% end
+
+
 
 %h = figure('Name',['der = ',num2str(alpha+1)]);plot(T,spec1);
 %h.Children.Children(1).LineWidth = 8;
@@ -148,10 +162,6 @@ spec1 = abs(squeeze((sum(sum(abs(phi))))));
 %h.Children.XTick = [0:ceil(6.5/5):6.5];
 
 %%
-for iii=1:1:numOitr
-    tempPhi = phi(:,:,iii);
-    spec1(iii) = abs(tempPhi(:)'*f(:));
-end
 %%
 %h = figure('Name',['the spectrum der = ',num2str(alpha+1)]);plot(T,spec1);
 %h.Children.Children(1).LineWidth = 8;
@@ -177,24 +187,40 @@ end
 
 %% Reconstruction
 
-%fsh = zeros(size(u));
-%for iii=1:1:numOitr
+% fsh = zeros(size(u));
+% for iii=1:1:numOitr
 %    fsh = fsh + phi(:,:,iii)*dt;
-%end
-%fsh = -real(fsh);%+imag(fsh);
+% end
+fsh = sum(phi,3)*dt;
+fsh = -real(fsh);%+imag(fsh);
 
-%h = figure('Name','residue');imagesc(uini - fsh);
-%h.Children.XTick = [1028];
-%h.Children.YTick = [1028];
-%h = figure('Name','sh');imagesc(fsh);
-%h.Children.XTick = [1028];
-%h.Children.YTick = [1028];
-%h= figure('Name','source');imagesc(uini);
-%h.Children.XTick = [1028];
-%h.Children.YTick = [1028];
-%h=figure();imshow(fsh,[])
-%h.InnerPosition(3)=col;
-%drawnow;
+h = figure('Name','residue');imagesc(uini - fsh);
+h.Children.XTick = [1028];
+h.Children.YTick = [1028];
+h = figure('Name','sh');imagesc(fsh);
+h.Children.XTick = [1028];
+h.Children.YTick = [1028];
+h= figure('Name','source');imagesc(uini);
+h.Children.XTick = [1028];
+h.Children.YTick = [1028];
+h=figure();imshow(fsh,[])
+h.InnerPosition(3)=col;
+drawnow;
+
+
+% alecDec = 1000;
+% newPhi=zeros(size(f));
+% for iii=1:1:numOitr/alecDec
+%     newPhi(:,:,iii) = sum(phi(:,:,alecDec*(iii-1)+1:1:alecDec*iii),3);
+% end
+% phi = newPhi;
+% T = dt*[0:alecDec:numOitr-1];
+[~,~,numOitr]= size(phi);
+for iii=1:1:numOitr
+    tempPhi = phi(:,:,iii);
+    spec1(iii) = abs(tempPhi(:)'*f(:));
+end
+
 %     h.InnerPosition(4)=col;
 %ha = gca;
 %h.InnerPosition(4)=floor(h.InnerPosition(3)*row/col);
@@ -212,10 +238,12 @@ for kkk=1:1:length(tPoints)
     fsh = zeros(size(u));
     if kkk==1
         firstInd = 1;
-        [~,lastInd] = min(abs(T-tPoints(1)));
+        [lastInd] = find(abs(T-tPoints(1))==min(abs(T-tPoints(1))));
     else
-        [~,firstInd] = min(abs(T-tPoints(kkk-1)));
-        [~,lastInd] = min(abs(T-tPoints(kkk)));
+        firstInd = find(abs(T-tPoints(kkk-1))==min(abs(T-tPoints(kkk-1))));
+        firstInd = firstInd(1);
+        lastInd = find(abs(T-tPoints(kkk))==min(abs(T-tPoints(kkk))));
+        lastInd = lastInd(end);
     end
     kkk
     

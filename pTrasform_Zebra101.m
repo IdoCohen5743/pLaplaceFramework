@@ -2,7 +2,7 @@ close all;
 clear all;
 clc;
 
-rng(41001);
+% rng(41001);
 addpath './pLaplace';
 
 f = imread('zebra_media_gmu.jpg');
@@ -35,8 +35,8 @@ J = Jini;
 
 ut = lapi(u,p);
 
-% numOitr = 1200000;
-numOitr = 400000;
+% numOitr = 600000;
+numOitr =1200000;
 uT = zeros([size(u),numOitr]);
 tic
 hwait = waitbar(0,'message');
@@ -56,7 +56,7 @@ end
 close(hwait);
 toc
 %% mean
-N = 2;
+N = 6;
 tic
 % uTT = zeros([size(u),numOitr/N]);
 for jjj=1:1:numOitr/N
@@ -65,13 +65,6 @@ end
 uT = uT(:,:,[1:1:numOitr/N]);
 dt = dt*N;
 toc
-%% sample
-N = 20;
-tic
-uT = uT(:,:,1:N:end);
-dt = dt*N;
-toc
-%%
 
 [~,~,numOitr] = size(uT);
 T = dt*[0:1:numOitr-1];
@@ -208,19 +201,21 @@ h.InnerPosition(3)=col;
 drawnow;
 
 
-% alecDec = 1000;
-% newPhi=zeros(size(f));
-% for iii=1:1:numOitr/alecDec
-%     newPhi(:,:,iii) = sum(phi(:,:,alecDec*(iii-1)+1:1:alecDec*iii),3);
-% end
-% phi = newPhi;
-% T = dt*[0:alecDec:numOitr-1];
+alecDec = 300;
+newPhi=zeros(size(f));
+for iii=1:1:numOitr/alecDec
+    newPhi(:,:,iii) = sum(phi(:,:,alecDec*(iii-1)+1:1:alecDec*iii),3);
+end
+phi = newPhi;
+T = dt*[0:alecDec:numOitr-1];
 [~,~,numOitr]= size(phi);
 for iii=1:1:numOitr
     tempPhi = phi(:,:,iii);
     spec1(iii) = abs(tempPhi(:)'*f(:));
 end
-
+minLen = min(length(T),length(spec1));
+T = T(1:1:minLen);
+spec1 = spec1(1:1:minLen);
 %     h.InnerPosition(4)=col;
 %ha = gca;
 %h.InnerPosition(4)=floor(h.InnerPosition(3)*row/col);
@@ -268,7 +263,7 @@ for kkk=1:1:length(tPoints)
     set(h,'color','w');
     %     pos_fig=get(h,'OuterPosition');
     %     set(h,'OuterPosition',[pos_fig(1:2) pos(3:4)]);
-    figure(86);plot(T(firstInd:1:lastInd-1),spec1(firstInd:1:lastInd-1));hold on;
+    figure(86);plot(T(firstInd:1:end),spec1(firstInd:1:end));hold on;
 end
 
 h=figure(86);hold off;
@@ -276,7 +271,7 @@ for iii=1:1:length(h.Children.Children)
     h.Children.Children(iii).LineWidth = 8;
 end
 grid on;
-h.Children.FontSize = 70;
+h.Children.FontSize = 50;
 h.Children.TickLabelInterpreter = 'Latex';
 h.Children.YLim = [0,1.05*max(spec1)];
 % h.Children.YLim = [0,10*max(spec1)];

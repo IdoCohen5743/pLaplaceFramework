@@ -26,8 +26,8 @@ uini = u;
 
 
 
-p = 1.01;
-dt = 5e-5;
+p = 1.5;
+dt = 1e-4;
 Delta_pu = lapi(u,p);
 Jini = -Delta_pu(:)'*u(:);
 J = Jini;
@@ -227,7 +227,7 @@ spec1 = spec1(1:1:minLen);
 %set(h,'color','w');
 
 %% filtering
-maxT = 4.2;
+maxT = 82;
 tPoints = [0.015 0.075 0.2 1]*maxT;
 for kkk=1:1:length(tPoints)
     fsh = zeros(size(u));
@@ -273,9 +273,9 @@ end
 grid on;
 h.Children.FontSize = 35;
 h.Children.TickLabelInterpreter = 'Latex';
-h.Children.YLim = [0,1.05*max(spec1)];
-% h.Children.YLim = [0,10*max(spec1)];
-% h.Children.YScale = 'log';
+% h.Children.YLim = [0,1.05*max(spec1)];
+h.Children.YLim = [0,10*max(spec1)];
+h.Children.YScale = 'log';
 h.Children.XLim = [T(1) maxT+0.01];
 h.Children.XTick = [0:ceil((maxT+0.1)/5):maxT+0.1];
 h.Children.YLabel.String = '$|S(t)|$';
@@ -283,7 +283,7 @@ h.Children.XLabel.String = '$t$';
 h.Children.XLabel.Interpreter = 'latex';
 h.Children.YLabel.Interpreter = 'latex';
 
-% h.Children.YTick = 10.^[floor(-log(max(spec1))-1):ceil((log(max(spec1)))/7):log(max(spec1))+1];
+h.Children.YTick = 10.^[floor(-log(max(spec1))-1):ceil((log(max(spec1)))/7):log(max(spec1))+1];
 % h.Children.XTick = [0:ceil(4.2/5):4.2];
 pause(0.00001);
 frame_h = get(handle(gcf),'JavaFrame');

@@ -13,7 +13,7 @@ if exist('Method','var')
     iter_proj = Method.iter_proj;
 else
     Num_method = 'proj'; % Projection algorithm, default (the only method implemented here)       
-    dt_proj=0.2; iter_proj=500; %500
+    dt_proj=0.2; iter_proj=20000; %500
 end    
 
 mu = 1/(2*dt);

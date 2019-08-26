@@ -8,19 +8,15 @@ clc;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Important params to change according to image / application %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Max_time = 4.2;       % Maximal scale to be processed (in evolution time)
+Max_time = 4.5;       % Maximal scale to be processed (in evolution time)
 %Max_time = 40;     % large scale
-Num_of_bands = 30000;  % Number of bands phi(x,t);
+Num_of_bands = 120;  % Number of bands phi(x,t);
 %%
 
 dt = Max_time/Num_of_bands; 
 
 f = double(rgb2gray(imread('zebra_media_gmu.jpg'))); 
-%f = f(50:100,50:100); % debug
-% f = double(f);
-% f = double(rgb2gray(f));
 f = imresize(f,0.16);
-% f = f(21:185,71:240);  % fruits, melon
 f = f - mean(f(:));
 f = double(f)/double(max(f(:)));
 % f = f/255;  % pixels are in the range [0,1]
@@ -52,21 +48,26 @@ f_H3 = specTV_filter( Phi, H3, f_r, dt );
 f_H4 = specTV_filter( Phi, H4, f_r, dt );
 % Plot S(t) and filter response
 %%
-h = figure(); plot(T,S,...
-                T(hp_i:bp_low_i),S(hp_i:bp_low_i),...
-                T(bp_low_i:bp_high_i),S(bp_low_i:bp_high_i),...
-                T(bp_high_i:end),S(bp_high_i:end));hold off;
+h = figure(); plot(T-T(1),S,...
+                T(hp_i:end)-T(1),S(hp_i:end),...
+                T(bp_low_i:end)-T(1),S(bp_low_i:end),...
+                T(bp_high_i:end)-T(1),S(bp_high_i:end));hold off;
 for iii=1:1:length(h.Children.Children)
     h.Children.Children(iii).LineWidth = 8;
 end
 grid on;
-h.Children.FontSize = 70;
+h.Children.FontSize = 35;
 h.Children.TickLabelInterpreter = 'Latex';
 h.Children.YLim = [0,1.1*max(S)];
 % h.Children.YLim = [0,1000*max(S)];
 % h.Children.YScale = 'log';
 h.Children.XLim = [0 T(end)];
 h.Children.XTick = [0:ceil((T(end)+0.1)/5):T(end)+0.1];
+h.Children.YLabel.String = '$|S(t)|$';
+h.Children.XLabel.String = '$t$';
+h.Children.XLabel.Interpreter = 'latex';
+h.Children.YLabel.Interpreter = 'latex';
+
 % h.Children.YTick = 10.^[floor(-log(max(S))-1):ceil((log(max(S)))/7):log(max(S))+1];
 % h.Children.XTick = [0:ceil(4.2/5):4.2];
 pause(0.00001);

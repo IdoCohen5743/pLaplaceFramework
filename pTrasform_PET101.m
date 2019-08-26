@@ -5,9 +5,9 @@ clc;
 % rng(41001);
 addpath './pLaplace';
 
-f = imread('zebra_media_gmu.jpg');
-f = double(rgb2gray(f));
-f = imresize(f,0.16);
+f = imread('T0_brain3.bmp');
+% f = double(rgb2gray(f));
+f = imresize(f,0.5);
 f = f - mean(f(:));
 f = double(f)/double(max(f(:)));
 u = f;
@@ -201,7 +201,7 @@ h.InnerPosition(3)=col;
 drawnow;
 
 
-alecDec = 300;
+alecDec = 200;
 newPhi=zeros(size(f));
 for iii=1:1:numOitr/alecDec
     newPhi(:,:,iii) = sum(phi(:,:,alecDec*(iii-1)+1:1:alecDec*iii),3);
@@ -282,6 +282,7 @@ h.Children.YLabel.String = '$|S(t)|$';
 h.Children.XLabel.String = '$t$';
 h.Children.XLabel.Interpreter = 'latex';
 h.Children.YLabel.Interpreter = 'latex';
+
 
 % h.Children.YTick = 10.^[floor(-log(max(spec1))-1):ceil((log(max(spec1)))/7):log(max(spec1))+1];
 % h.Children.XTick = [0:ceil(4.2/5):4.2];

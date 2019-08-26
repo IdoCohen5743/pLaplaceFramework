@@ -5,9 +5,9 @@ clc;
 % rng(41001);
 addpath './pLaplace';
 
-f = imread('zebra_media_gmu.jpg');
-f = double(rgb2gray(f));
-f = imresize(f,0.16);
+f = imread('T0_brain3.bmp');
+% f = double(rgb2gray(f));
+f = imresize(f,0.5);
 f = f - mean(f(:));
 f = double(f)/double(max(f(:)));
 u = f;
@@ -26,8 +26,8 @@ uini = u;
 
 
 
-p = 1.01;
-dt = 5e-5;
+p = 1.5;
+dt = 1e-4;
 Delta_pu = lapi(u,p);
 Jini = -Delta_pu(:)'*u(:);
 J = Jini;
@@ -50,8 +50,12 @@ for iii=1:1:numOitr
     end
     uT(:,:,iii) = u;
     ut = lapi(u,p);
-    u = u + ut*dt;
-    
+    [ux,uy] = grad(u);
+    temp = ux+1i*uy;
+    pnorm = norm(temp(:),p)^(p-1);
+%     ut = 
+    u = u + ut*dt/pnorm;
+        
 end
 close(hwait);
 toc
@@ -74,8 +78,8 @@ T = dt*[0:1:numOitr-1];
 
 uini = uT(:,:,1);
 
-alpha = 1/(2-p);
-
+% alpha = 1/(2-p);
+alpha = 1;
 %spec0 = squeeze(sum(sum(abs(uT))));
 %h= figure('Name',['der = ',num2str(0)]);plot(T,spec0);
 %h.Children.Children(1).LineWidth = 8;
@@ -201,7 +205,7 @@ h.InnerPosition(3)=col;
 drawnow;
 
 
-alecDec = 300;
+alecDec = 30;
 newPhi=zeros(size(f));
 for iii=1:1:numOitr/alecDec
     newPhi(:,:,iii) = sum(phi(:,:,alecDec*(iii-1)+1:1:alecDec*iii),3);
@@ -227,7 +231,7 @@ spec1 = spec1(1:1:minLen);
 %set(h,'color','w');
 
 %% filtering
-maxT = 4.2;
+maxT = 49.14;
 tPoints = [0.015 0.075 0.2 1]*maxT;
 for kkk=1:1:length(tPoints)
     fsh = zeros(size(u));
@@ -274,8 +278,8 @@ grid on;
 h.Children.FontSize = 35;
 h.Children.TickLabelInterpreter = 'Latex';
 h.Children.YLim = [0,1.05*max(spec1)];
-% h.Children.YLim = [0,10*max(spec1)];
-% h.Children.YScale = 'log';
+h.Children.YLim = [0,10*max(spec1)];
+h.Children.YScale = 'log';
 h.Children.XLim = [T(1) maxT+0.01];
 h.Children.XTick = [0:ceil((maxT+0.1)/5):maxT+0.1];
 h.Children.YLabel.String = '$|S(t)|$';
@@ -283,7 +287,7 @@ h.Children.XLabel.String = '$t$';
 h.Children.XLabel.Interpreter = 'latex';
 h.Children.YLabel.Interpreter = 'latex';
 
-% h.Children.YTick = 10.^[floor(-log(max(spec1))-1):ceil((log(max(spec1)))/7):log(max(spec1))+1];
+h.Children.YTick = 10.^[floor(-log(max(spec1))-1):ceil((log(max(spec1)))/7):log(max(spec1))+1];
 % h.Children.XTick = [0:ceil(4.2/5):4.2];
 pause(0.00001);
 frame_h = get(handle(gcf),'JavaFrame');

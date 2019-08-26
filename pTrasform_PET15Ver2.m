@@ -5,9 +5,9 @@ clc;
 % rng(41001);
 addpath './pLaplace';
 
-f = imread('zebra_media_gmu.jpg');
-f = double(rgb2gray(f));
-f = imresize(f,0.16);
+f = imread('T0_brain3.bmp');
+% f = double(rgb2gray(f));
+f = imresize(f,0.5);
 f = f - mean(f(:));
 f = double(f)/double(max(f(:)));
 u = f;
@@ -26,8 +26,8 @@ uini = u;
 
 
 
-p = 1.01;
-dt = 5e-5;
+p = 1.5;
+dt = 1e-4;
 Delta_pu = lapi(u,p);
 Jini = -Delta_pu(:)'*u(:);
 J = Jini;
@@ -50,6 +50,7 @@ for iii=1:1:numOitr
     end
     uT(:,:,iii) = u;
     ut = lapi(u,p);
+    
     u = u + ut*dt;
     
 end
@@ -227,7 +228,7 @@ spec1 = spec1(1:1:minLen);
 %set(h,'color','w');
 
 %% filtering
-maxT = 4.2;
+maxT = 49.14;
 tPoints = [0.015 0.075 0.2 1]*maxT;
 for kkk=1:1:length(tPoints)
     fsh = zeros(size(u));
@@ -273,9 +274,9 @@ end
 grid on;
 h.Children.FontSize = 35;
 h.Children.TickLabelInterpreter = 'Latex';
-h.Children.YLim = [0,1.05*max(spec1)];
-% h.Children.YLim = [0,10*max(spec1)];
-% h.Children.YScale = 'log';
+% h.Children.YLim = [0,1.05*max(spec1)];
+h.Children.YLim = [0,10*max(spec1)];
+h.Children.YScale = 'log';
 h.Children.XLim = [T(1) maxT+0.01];
 h.Children.XTick = [0:ceil((maxT+0.1)/5):maxT+0.1];
 h.Children.YLabel.String = '$|S(t)|$';
